@@ -2,4 +2,10 @@
 	aliases {
 		app-led = &led0;
 	};
+
+	led_sensor: led_sensor {
+		compatible = "custom,led-sensor";
+		led-gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
 };
