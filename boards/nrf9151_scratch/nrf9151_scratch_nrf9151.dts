@@ -1,0 +1,73 @@
+/dts-v1/;
+#include <nordic/nrf9151_laca.dtsi>
+
+/ {
+	model = "Nordic nRF9151 Scratch Board";
+	compatible = "custom,nrf9151-scratch";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,sram = &sram0_s;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,sram-secure-partition = &sram0_s;
+		zephyr,sram-non-secure-partition = &sram0_ns;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+			label = "LED 0";
+		};
+	};
+
+	aliases {
+		led0 = &led0;
+		app-led = &led0;
+	};
+};
+
+&pinctrl {
+	uart0_default: uart0_default {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 0, 27)>,
+				<NRF_PSEL(UART_RTS, 0, 14)>;
+		};
+		group2 {
+			psels = <NRF_PSEL(UART_RX, 0, 26)>,
+				<NRF_PSEL(UART_CTS, 0, 15)>;
+			bias-pull-up;
+		};
+	};
+
+	uart0_sleep: uart0_sleep {
+		group1 {
+			psels = <NRF_PSEL(UART_TX, 0, 27)>,
+				<NRF_PSEL(UART_RX, 0, 26)>,
+				<NRF_PSEL(UART_RTS, 0, 14)>,
+				<NRF_PSEL(UART_CTS, 0, 15)>;
+			low-power-enable;
+		};
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+#include <nordic/nrf91xx_partition.dtsi>

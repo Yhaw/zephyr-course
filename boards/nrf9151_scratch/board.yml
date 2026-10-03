@@ -1,0 +1,6 @@
+board:
+  name: nrf9151_scratch
+  full_name: nRF9151 Scratch Board
+  vendor: custom
+  socs:
+  - name: nrf9151

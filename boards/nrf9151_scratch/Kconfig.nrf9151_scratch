@@ -1,0 +1,4 @@
+# nRF9151 Scratch board configuration
+
+config BOARD_NRF9151_SCRATCH
+	select SOC_NRF9151_LACA
