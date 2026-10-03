@@ -4,7 +4,11 @@
 
 
 /* The devicetree node identifier for the "led0" alias. */
+#if DT_NODE_EXISTS(DT_ALIAS(app_led))
+#define LED_NODE DT_ALIAS(app_led)
+#else
 #define LED_NODE DT_ALIAS(led0)
+#endif
 
 // using and nrf9151-DK board, the led0 alias is not defined in the devicetree.
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
@@ -24,7 +28,11 @@ int main(void)
 
         led_state = !led_state;
         LOG_INF("LED state: %s", led_state ? "ON" : "OFF");
+#if defined(CONFIG_APP_HEARTBEAT_PERIOD_MS)
+        k_msleep(CONFIG_APP_HEARTBEAT_PERIOD_MS);
+#else
         k_msleep(CONFIG_BLINK_SLEEP_TIME_MS);
+#endif
     }
     return 0;
 }

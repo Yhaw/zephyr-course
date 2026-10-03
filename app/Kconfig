@@ -28,6 +28,13 @@ config BLINK_SLEEP_TIME_MS
     default 2000 if LED_BLINK_SLEEP_TIME_2S
     default 1000
 
+config APP_HEARTBEAT_PERIOD_MS
+    int "Heartbeat period in ms"
+    range 100 2000
+    default 500
+    help
+      Heartbeat LED blink period in milliseconds.
+
 menuconfig ADVANCED_LED_SETTINGS
     bool "Advanced LED settings"
     default n
