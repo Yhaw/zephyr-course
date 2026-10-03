@@ -4,6 +4,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/shell/shell.h>
 #include <drivers/led_sensor.h>
+#include <stdlib.h>
 
 
 /* The devicetree node identifier for the "led0" alias. */
@@ -73,10 +74,32 @@ static int cmd_sensor_info(const struct shell *sh, size_t argc, char **argv)
     return 0;
 }
 
+static int cmd_sensor_set(const struct shell *sh, size_t argc, char **argv)
+{
+    if (!device_is_ready(led_sensor)) {
+        shell_error(sh, "Sensor device not ready");
+        return -ENODEV;
+    }
+
+    char *endptr;
+    long val = strtol(argv[1], &endptr, 10);
+
+    if (*endptr != '\0' || (val != 0 && val != 1)) {
+        shell_error(sh, "Invalid value: '%s'. Expected 0 or 1", argv[1]);
+        return -EINVAL;
+    }
+
+    bool invert = (val == 1);
+    led_sensor_set_invert(led_sensor, invert);
+    shell_print(sh, "Sensor invert mode set to: %d", (int)invert);
+    return 0;
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_sensor,
     SHELL_CMD(fetch, NULL, "Fetch sensor sample (turns LED ON)", cmd_sensor_fetch),
     SHELL_CMD(read, NULL, "Read sensor channel (turns LED OFF)", cmd_sensor_read),
     SHELL_CMD(info, NULL, "Print device name and ready state", cmd_sensor_info),
+    SHELL_CMD_ARG(set, NULL, "Set invert mode: sensor set <0|1>", cmd_sensor_set, 2, 0),
     SHELL_SUBCMD_SET_END
 );
 
