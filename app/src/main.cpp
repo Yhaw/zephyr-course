@@ -2,6 +2,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <drivers/led_sensor.h>
 
 
 /* The devicetree node identifier for the "led0" alias. */
@@ -32,6 +33,9 @@ int main(void)
         sensor_sample_fetch(led_sensor);
         k_msleep(500);
         sensor_channel_get(led_sensor, SENSOR_CHAN_ALL, NULL);
+
+        /* Test custom extension API */
+        led_sensor_set_invert(led_sensor, false);
     }
 #endif
 

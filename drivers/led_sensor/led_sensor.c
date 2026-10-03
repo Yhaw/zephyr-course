@@ -2,6 +2,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <drivers/led_sensor.h>
 
 #define DT_DRV_COMPAT custom_led_sensor
 
@@ -13,15 +14,26 @@ struct led_sensor_config {
 
 struct led_sensor_data {
 	int led_state;
+	bool invert;
 };
+
+/* Custom extension API */
+int led_sensor_set_invert(const struct device *dev, bool invert)
+{
+	struct led_sensor_data *data = dev->data;
+
+	data->invert = invert;
+	return 0;
+}
 
 static int led_sensor_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	const struct led_sensor_config *cfg = dev->config;
 	struct led_sensor_data *data = dev->data;
 
-	/* Turning on the LED */
-	gpio_pin_set_dt(&cfg->led, 1);
+	/* Turning on the LED (taking inversion flag into account) */
+	int val = data->invert ? 0 : 1;
+	gpio_pin_set_dt(&cfg->led, val);
 	data->led_state = 1;
 
 	return 0;
@@ -34,8 +46,9 @@ static int led_sensor_channel_get(const struct device *dev,
 	const struct led_sensor_config *cfg = dev->config;
 	struct led_sensor_data *data = dev->data;
 
-	/* Turning off the LED */
-	gpio_pin_set_dt(&cfg->led, 0);
+	/* Turning off the LED (taking inversion flag into account) */
+	int val_pin = data->invert ? 1 : 0;
+	gpio_pin_set_dt(&cfg->led, val_pin);
 	data->led_state = 0;
 
 	if (val != NULL) {
@@ -54,6 +67,9 @@ static DEVICE_API(sensor, led_sensor_api) = {
 static int led_sensor_init(const struct device *dev)
 {
 	const struct led_sensor_config *cfg = dev->config;
+	struct led_sensor_data *data = dev->data;
+
+	data->invert = false;
 
 	if (!gpio_is_ready_dt(&cfg->led)) {
 		LOG_ERR("LED GPIO not ready");
