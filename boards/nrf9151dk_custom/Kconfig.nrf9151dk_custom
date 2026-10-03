@@ -1,0 +1,4 @@
+# nRF9151 DK Custom board configuration
+
+config BOARD_NRF9151DK_CUSTOM
+	select SOC_NRF9151_LACA
